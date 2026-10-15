@@ -51,6 +51,13 @@ These match the list filters and the insight group-bys.
 Currency is **derived**, never stored per employee, so a salary can't end up recorded in the wrong
 currency for its country.
 
+**Schema ownership:** the schema is a Flyway migration (`db/migration/V1__create_employee.sql`), and
+Hibernate DDL generation is off. *Why:* the persistence tests showed that Hibernate's SQLite dialect
+silently drops unique constraints, which would have allowed duplicate employee codes. A custom
+`ConstraintAwareSQLiteDialect` also maps SQLite constraint errors to `DataIntegrityViolationException`,
+so a duplicate that slips past the service-level check (a race) still becomes a clean 409. The
+database also enforces `annual_salary > 0` and the enum values as a last line of defence.
+
 **Trade-offs**
 - *Job title / department are plain strings, not lookup tables.* That's simpler for v1, and the filter
   dropdowns come from `SELECT DISTINCT`. The cost is typo risk ("Engineer" vs "Enginer"). Normalising
