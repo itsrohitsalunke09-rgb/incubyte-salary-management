@@ -8,7 +8,11 @@ and answer **"how does the org pay people?"**. It replaces a set of Excel sheets
 - **Insights**: per-country headcount, median salary and payroll, plus a drill-down by job title or
   department (min, median, average, max, payroll, pay-range bars). Every figure is in local currency.
 
-**Live demo:** _link added after deployment_ · **Video:** _link added after recording_
+**Live demo:** https://acme-salary-management-ncyf.onrender.com
+(Render free tier: the first request after ~15 idle minutes wakes the instance and can take a minute or two,
+because it restarts and re-seeds the 10,000 employees.)
+
+**Video:** _link added after recording_
 
 ## Docs (start here)
 | Doc | What's in it |
