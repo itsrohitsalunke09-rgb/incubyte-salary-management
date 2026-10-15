@@ -1,0 +1,123 @@
+<header class="page-header">
+  <a mat-icon-button routerLink="/employees" aria-label="Back to employees"><mat-icon>arrow_back</mat-icon></a>
+  <h1>{{ isEdit() ? 'Edit employee' : 'Add employee' }}</h1>
+</header>
+
+@if (loadError(); as message) {
+  <div class="card state" role="alert">
+    <p>{{ message }}</p>
+    <a mat-stroked-button routerLink="/employees">Back to employees</a>
+  </div>
+} @else {
+  <form class="card" [formGroup]="form" (ngSubmit)="save()" novalidate>
+    @if (employee.isLoading() || saving()) {
+      <mat-progress-bar mode="indeterminate" />
+    }
+
+    @if (formError(); as message) {
+      <p class="form-error" role="alert"><mat-icon inline>error</mat-icon> {{ message }}</p>
+    }
+
+    <div class="grid">
+      <mat-form-field appearance="outline">
+        <mat-label>Employee code</mat-label>
+        <input matInput formControlName="employeeCode" name="employeeCode" autocomplete="off" />
+        @if (isEdit()) {
+          <mat-hint>Employee codes can't be changed</mat-hint>
+        }
+        @if (error('employeeCode'); as message) {
+          <mat-error>{{ message }}</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Full name</mat-label>
+        <input matInput formControlName="fullName" name="fullName" autocomplete="off" />
+        @if (error('fullName'); as message) {
+          <mat-error>{{ message }}</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Job title</mat-label>
+        <input matInput formControlName="jobTitle" name="jobTitle" [matAutocomplete]="titles" autocomplete="off" />
+        <mat-autocomplete #titles="matAutocomplete">
+          @for (title of jobTitleSuggestions(); track title) {
+            <mat-option [value]="title">{{ title }}</mat-option>
+          }
+        </mat-autocomplete>
+        @if (error('jobTitle'); as message) {
+          <mat-error>{{ message }}</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Department</mat-label>
+        <input matInput formControlName="department" name="department" [matAutocomplete]="departments" autocomplete="off" />
+        <mat-autocomplete #departments="matAutocomplete">
+          @for (name of departmentSuggestions(); track name) {
+            <mat-option [value]="name">{{ name }}</mat-option>
+          }
+        </mat-autocomplete>
+        @if (error('department'); as message) {
+          <mat-error>{{ message }}</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Country</mat-label>
+        <mat-select formControlName="country" name="country">
+          @for (option of filterOptions.value()?.countries ?? []; track option.code) {
+            <mat-option [value]="option.code">{{ option.name }} ({{ option.currency }})</mat-option>
+          }
+        </mat-select>
+        @if (error('country'); as message) {
+          <mat-error>{{ message }}</mat-error>
+        }
+      </mat-form-field>
+
+      <!-- dynamic: the hint can wrap on narrow screens; the field grows instead of overlapping the next one -->
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>Annual salary</mat-label>
+        <input matInput type="number" min="0" step="100" formControlName="annualSalary" name="annualSalary" />
+        @if (currency(); as code) {
+          <span matTextSuffix>{{ code }}</span>
+        }
+        <mat-hint>{{ currency() ? 'Yearly base salary in ' + currency() : 'Local currency of the chosen country' }}</mat-hint>
+        @if (error('annualSalary'); as message) {
+          <mat-error>{{ message }}</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Employment type</mat-label>
+        <mat-select formControlName="employmentType" name="employmentType">
+          @for (type of employmentTypes; track type) {
+            <mat-option [value]="type">{{ employmentTypeLabel(type) }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Hire date</mat-label>
+        <input matInput type="date" [max]="today" formControlName="hireDate" name="hireDate" />
+        @if (error('hireDate'); as message) {
+          <mat-error>{{ message }}</mat-error>
+        }
+      </mat-form-field>
+    </div>
+
+    <div class="actions">
+      @if (isEdit()) {
+        <button mat-button type="button" class="delete" (click)="confirmDelete()" [disabled]="saving()">
+          <mat-icon>delete</mat-icon> Delete
+        </button>
+      }
+      <span class="spacer"></span>
+      <a mat-button routerLink="/employees">Cancel</a>
+      <button mat-flat-button type="submit" [disabled]="saving()">
+        {{ isEdit() ? 'Save changes' : 'Add employee' }}
+      </button>
+    </div>
+  </form>
+}

@@ -125,6 +125,13 @@ the country is cleared mid-sort, the list falls back to name order. Currency is 
 (`SGD 76,600`, never a bare `$` that reads as USD). The real fix, FX conversion with an as-of date, stays out
 of scope (see requirements).
 
+**Form:** one component handles `/employees/new` and `/employees/:id/edit`. Client validators mirror the backend
+(`@NotBlank`, sizes, code pattern, salary > 0 with ≤ 2 decimals, hire date not in the future) for instant
+feedback. The server stays authoritative: its per-field 400 errors and the 409 duplicate code are shown inline
+on the matching input. The employee code is disabled when editing. The salary field shows the selected country's
+currency. Delete asks for confirmation, naming the employee and code. *Not built (noted for later):* an
+unsaved-changes guard on navigation.
+
 **List UX details:** search is debounced (300 ms). Any filter, sort or page-size change returns to page 1. The
 previous page stays on screen while the next loads, so the table doesn't flicker. Network failures show a plain
 message with a retry button.

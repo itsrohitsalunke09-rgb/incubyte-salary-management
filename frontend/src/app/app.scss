@@ -19,6 +19,19 @@
   background: color-mix(in srgb, var(--mat-sys-on-primary) 16%, transparent);
 }
 
+@media (max-width: 600px) {
+  .app-toolbar {
+    gap: 8px;
+    padding: 0 8px;
+  }
+
+  .app-title {
+    font: var(--mat-sys-title-medium);
+    white-space: normal;
+    line-height: 1.2;
+  }
+}
+
 .app-content {
   max-width: 1280px;
   margin: 0 auto;
