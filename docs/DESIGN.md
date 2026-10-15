@@ -76,10 +76,15 @@ Base path `/api`. JSON in and out. Errors use RFC 7807 `ProblemDetail`.
 | `GET /employees?search=&country=&department=&jobTitle=&page=0&size=20&sort=annualSalary,desc` | Paginated, filterable list | 200 `Page<EmployeeResponse>` |
 | `GET /employees/{id}` | One employee | 200 / 404 |
 | `POST /employees` | Create | 201 + `Location` / 400 validation / 409 duplicate code |
-| `PUT /employees/{id}` | Full update | 200 / 400 / 404 / 409 |
+| `PUT /employees/{id}` | Full update (everything except the employee code) | 200 / 400 / 404 |
 | `DELETE /employees/{id}` | Delete | 204 / 404 |
 
-`search` matches name or employee code (case-insensitive, contains). Page size is capped at 100.
+- `search` matches name or employee code (case-insensitive, contains). Page size defaults to 20, capped at 100.
+- **The employee code is immutable.** It's the business identifier other systems (payroll, HRIS) refer to,
+  so `PUT` doesn't accept it. That removes a whole class of "renamed the key" bugs and the 409-on-update case.
+- **Sort fields are whitelisted** (`fullName`, `employeeCode`, `jobTitle`, `department`, `country`, `annualSalary`,
+  `hireDate`). Anything else is a 400, not a 500 from deep inside JPA.
+- Validation errors return `400` with an `errors` map (`field → message`) so the UI can mark the right input.
 
 ### Reference data
 | `GET /meta/filters` | Countries (code, name, currency), departments, job titles for dropdowns |

@@ -30,6 +30,7 @@ class EmployeeRepositoryTest {
 
 	@BeforeEach
 	void seed() {
+		repository.deleteAll(); // start from a known state; rolled back with the test transaction
 		repository.saveAll(List.of(
 				employee("EMP-00001", "Asha Patel", "Software Engineer", "Engineering", Country.IN, "1800000"),
 				employee("EMP-00002", "Rahul Mehta", "Software Engineer", "Engineering", Country.IN, "2400000"),
