@@ -1,0 +1,156 @@
+.page-header {
+  margin-bottom: 16px;
+
+  h1 {
+    font: var(--mat-sys-headline-medium);
+    margin: 0;
+  }
+}
+
+.subtitle {
+  margin: 4px 0 0;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.card {
+  position: relative;
+  padding: 20px;
+  border-radius: 12px;
+  background: var(--mat-sys-surface-container-lowest);
+  box-shadow: var(--mat-sys-level1);
+}
+
+.state {
+  text-align: center;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.error {
+  color: var(--mat-sys-error);
+}
+
+.country-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.country-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px;
+  border: 2px solid transparent;
+  border-radius: 12px;
+  background: var(--mat-sys-surface-container-lowest);
+  box-shadow: var(--mat-sys-level1);
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 120ms, box-shadow 120ms;
+
+  &:hover {
+    box-shadow: var(--mat-sys-level2);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--mat-sys-primary);
+    outline-offset: 2px;
+  }
+
+  &.selected {
+    border-color: var(--mat-sys-primary);
+    background: var(--mat-sys-primary-container);
+  }
+}
+
+.country-name {
+  font: var(--mat-sys-title-medium);
+}
+
+.currency {
+  margin-left: 4px;
+  padding: 1px 6px;
+  border-radius: 6px;
+  background: var(--mat-sys-surface-container-high);
+  font: var(--mat-sys-label-small);
+}
+
+.metric {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+
+  .label {
+    color: var(--mat-sys-on-surface-variant);
+    font: var(--mat-sys-body-small);
+  }
+
+  .value {
+    font: var(--mat-sys-title-small);
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+.drilldown-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+
+  h2 {
+    font: var(--mat-sys-title-large);
+    margin: 0;
+  }
+}
+
+.table-scroll {
+  overflow-x: auto;
+}
+
+.numeric {
+  text-align: right;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.strong {
+  font-weight: 500;
+}
+
+// Min–max range on a shared scale with a median tick, drawn under the median figure.
+.range {
+  position: relative;
+  display: block;
+  height: 6px;
+  min-width: 120px;
+  margin-top: 4px;
+  border-radius: 3px;
+  background: var(--mat-sys-surface-container-high);
+}
+
+.range-bar {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  border-radius: 3px;
+  background: color-mix(in srgb, var(--mat-sys-primary) 45%, transparent);
+}
+
+.range-median {
+  position: absolute;
+  top: -2px;
+  width: 2px;
+  height: 10px;
+  background: var(--mat-sys-primary);
+}
+
+.footnote {
+  margin: 12px 0 0;
+  color: var(--mat-sys-on-surface-variant);
+  font: var(--mat-sys-body-small);
+}

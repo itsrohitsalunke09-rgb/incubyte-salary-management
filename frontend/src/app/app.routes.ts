@@ -17,5 +17,10 @@ export const routes: Routes = [
     title: 'Edit employee · ACME Salary',
     loadComponent: () => import('./employees/employee-form/employee-form').then((m) => m.EmployeeForm),
   },
+  {
+    path: 'insights',
+    title: 'Insights · ACME Salary',
+    loadComponent: () => import('./insights/insights-page').then((m) => m.InsightsPage),
+  },
   { path: '**', redirectTo: 'employees' },
 ];

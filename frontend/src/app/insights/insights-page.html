@@ -1,0 +1,126 @@
+<header class="page-header">
+  <h1>Insights</h1>
+  <p class="subtitle">How ACME pays people, country by country. Every figure is in that country's local currency.</p>
+</header>
+
+@if (countriesError(); as message) {
+  <div class="card state error" role="alert">
+    <p>{{ message }}</p>
+    <button mat-stroked-button type="button" (click)="countries.reload()">Try again</button>
+  </div>
+} @else if (countries.isLoading()) {
+  <mat-progress-bar mode="indeterminate" aria-label="Loading insights" />
+} @else if (countries.hasValue() && countries.value().length === 0) {
+  <div class="card state">
+    <p>No employees yet. Insights appear once salaries are recorded.</p>
+    <a mat-flat-button routerLink="/employees/new">Add employee</a>
+  </div>
+} @else if (countries.hasValue()) {
+  <section class="country-grid" aria-label="Countries">
+    @for (c of countries.value(); track c.country) {
+      <button
+        type="button"
+        class="country-card"
+        [class.selected]="selected()?.country === c.country"
+        [attr.aria-pressed]="selected()?.country === c.country"
+        (click)="select(c.country)"
+      >
+        <span class="country-name">{{ c.countryName }} <span class="currency">{{ c.currency }}</span></span>
+        <span class="metric">
+          <span class="label">Headcount</span>
+          <span class="value headcount">{{ c.headcount | number }}</span>
+        </span>
+        <span class="metric">
+          <span class="label">Median salary</span>
+          <span class="value median">{{ money(c.median, c.currency) }}</span>
+        </span>
+        <span class="metric">
+          <span class="label">Annual payroll</span>
+          <span class="value payroll">{{ money(c.totalPayroll, c.currency, true) }}</span>
+        </span>
+      </button>
+    }
+  </section>
+
+  @if (selected(); as country) {
+    <section class="card drilldown" aria-label="Country breakdown">
+      <header class="drilldown-header">
+        <div>
+          <h2>{{ country.countryName }}</h2>
+          <p class="subtitle">
+            Range {{ money(country.min, country.currency) }} – {{ money(country.max, country.currency) }} ·
+            average {{ money(country.average, country.currency) }}
+          </p>
+        </div>
+        <mat-button-toggle-group
+          [value]="breakdown()"
+          (change)="showBreakdown($event.value)"
+          aria-label="Break down by"
+          hideSingleSelectionIndicator
+        >
+          <mat-button-toggle value="job-titles">By job title</mat-button-toggle>
+          <mat-button-toggle value="departments">By department</mat-button-toggle>
+        </mat-button-toggle-group>
+      </header>
+
+      @if (groups.isLoading()) {
+        <mat-progress-bar mode="indeterminate" />
+      }
+
+      <div class="table-scroll">
+        <table mat-table [dataSource]="rows()" matSort [matSortActive]="sort().active"
+          [matSortDirection]="sort().direction" (matSortChange)="sort.set($event)">
+          <ng-container matColumnDef="name">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>
+              {{ breakdown() === 'departments' ? 'Department' : 'Job title' }}
+            </th>
+            <td mat-cell *matCellDef="let g">{{ g.name }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="headcount">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header arrowPosition="before" class="numeric">People</th>
+            <td mat-cell *matCellDef="let g" class="numeric">{{ g.headcount | number }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="min">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header arrowPosition="before" class="numeric">Min</th>
+            <td mat-cell *matCellDef="let g" class="numeric">{{ money(g.min, country.currency) }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="median">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header arrowPosition="before" class="numeric">Median</th>
+            <td mat-cell *matCellDef="let g" class="numeric strong">
+              {{ money(g.median, country.currency) }}
+              <span class="range" aria-hidden="true">
+                <span class="range-bar" [style.left.%]="percent(g.min)" [style.width.%]="percent(g.max) - percent(g.min)"></span>
+                <span class="range-median" [style.left.%]="percent(g.median)"></span>
+              </span>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="average">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header arrowPosition="before" class="numeric">Average</th>
+            <td mat-cell *matCellDef="let g" class="numeric">{{ money(g.average, country.currency) }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="max">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header arrowPosition="before" class="numeric">Max</th>
+            <td mat-cell *matCellDef="let g" class="numeric">{{ money(g.max, country.currency) }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="totalPayroll">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header arrowPosition="before" class="numeric">Payroll</th>
+            <td mat-cell *matCellDef="let g" class="numeric">{{ money(g.totalPayroll, country.currency, true) }}</td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="columns"></tr>
+          <tr mat-row *matRowDef="let row; columns: columns"></tr>
+          <tr class="mat-row" *matNoDataRow>
+            <td class="state" [attr.colspan]="columns.length">No data for this country yet.</td>
+          </tr>
+        </table>
+      </div>
+      <p class="footnote">Bars show each group's min–max range on a shared scale; the tick is the median.</p>
+    </section>
+  }
+}

@@ -132,6 +132,16 @@ on the matching input. The employee code is disabled when editing. The salary fi
 currency. Delete asks for confirmation, naming the employee and code. *Not built (noted for later):* an
 unsaved-changes guard on navigation.
 
+**Insights screen:** one card per country (headcount, median, annual payroll in compact notation such as `₹7.75B`)
+→ the chosen country's breakdown by job title or department, sorted by median (highest first) and sortable by any
+column. Each row has a min–max bar on a shared scale with a median tick, so pay bands can be compared at a glance.
+The selection lives in the URL (`/insights?country=US&by=departments`), so a view can be bookmarked or shared.
+
+**Known limitation found on real data:** part-time salaries (~0.5×) are mixed into the same statistics as
+full-time ones. That pulls down the min and median for "what do we pay this role?" (e.g. Engineering Manager
+in India has a min of ₹1.66M mainly because of part-timers). Options: filter insights to full-time, or show
+full-time-equivalent pay. *Decision pending.*
+
 **List UX details:** search is debounced (300 ms). Any filter, sort or page-size change returns to page 1. The
 previous page stays on screen while the next loads, so the table doesn't flicker. Network failures show a plain
 message with a retry button.
