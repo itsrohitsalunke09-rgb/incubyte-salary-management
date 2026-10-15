@@ -12,7 +12,10 @@ and answer **"how does the org pay people?"**. It replaces a set of Excel sheets
 (Render free tier: the first request after ~15 idle minutes wakes the instance and can take a minute or two,
 because it restarts and re-seeds the 10,000 employees.)
 
-**Video:** _link added after recording_
+**Demo walkthrough** (silent, recorded on the live app: search → filter by country → sort by salary →
+edit form → insights by job title and by department):
+
+![Demo walkthrough](docs/demo.gif)
 
 ## Docs (start here)
 | Doc | What's in it |
