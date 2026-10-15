@@ -1,0 +1,9 @@
+**/node_modules
+**/dist
+**/.angular
+**/target
+**/*.db
+.git
+.idea
+.vscode
+docs
