@@ -118,6 +118,17 @@ name. A country with no employees gets an empty `groups` list, not a 404.
 | `/employees/new`, `/employees/:id/edit` | Reactive form with validation mirroring the backend; currency shown from the selected country |
 | `/insights` | Country cards (headcount, median, payroll) → choose a country → job-title and department tables |
 
+**Mixed-currency rule (found while building the list):** salaries are stored in local currency, so sorting
+the whole company by salary would put ₹1,800,000 above $150,000. The list therefore **only allows a salary
+sort once a single country is selected**. The header is disabled with a tooltip and a hint explains why. If
+the country is cleared mid-sort, the list falls back to name order. Currency is shown as an unambiguous symbol
+(`SGD 76,600`, never a bare `$` that reads as USD). The real fix, FX conversion with an as-of date, stays out
+of scope (see requirements).
+
+**List UX details:** search is debounced (300 ms). Any filter, sort or page-size change returns to page 1. The
+previous page stays on screen while the next loads, so the table doesn't flicker. Network failures show a plain
+message with a retry button.
+
 State is held in services/components with Angular **signals**. There's no NgRx: the app has two features
 and no cross-feature shared state, so a store would be ceremony.
 

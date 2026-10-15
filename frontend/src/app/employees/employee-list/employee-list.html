@@ -1,0 +1,157 @@
+<header class="page-header">
+  <div>
+    <h1>Employees</h1>
+    @if (page(); as current) {
+      <p class="subtitle">{{ current.page.totalElements | number }} employees</p>
+    }
+  </div>
+  <a mat-flat-button routerLink="/employees/new"><mat-icon>person_add</mat-icon> Add employee</a>
+</header>
+
+<section class="filters" aria-label="Filters">
+  <mat-form-field appearance="outline" class="search">
+    <mat-label>Search name or code</mat-label>
+    <mat-icon matPrefix>search</mat-icon>
+    <input matInput [(ngModel)]="searchText" name="search" autocomplete="off" />
+  </mat-form-field>
+
+  <mat-form-field appearance="outline">
+    <mat-label>Country</mat-label>
+    <mat-select [(ngModel)]="country" name="country">
+      <mat-option [value]="null">All countries</mat-option>
+      @for (option of filterOptions.value()?.countries ?? []; track option.code) {
+        <mat-option [value]="option.code">{{ option.name }} ({{ option.currency }})</mat-option>
+      }
+    </mat-select>
+  </mat-form-field>
+
+  <mat-form-field appearance="outline">
+    <mat-label>Department</mat-label>
+    <mat-select [(ngModel)]="department" name="department">
+      <mat-option [value]="null">All departments</mat-option>
+      @for (name of filterOptions.value()?.departments ?? []; track name) {
+        <mat-option [value]="name">{{ name }}</mat-option>
+      }
+    </mat-select>
+  </mat-form-field>
+
+  <mat-form-field appearance="outline">
+    <mat-label>Job title</mat-label>
+    <mat-select [(ngModel)]="jobTitle" name="jobTitle">
+      <mat-option [value]="null">All job titles</mat-option>
+      @for (name of filterOptions.value()?.jobTitles ?? []; track name) {
+        <mat-option [value]="name">{{ name }}</mat-option>
+      }
+    </mat-select>
+  </mat-form-field>
+
+  @if (hasFilters()) {
+    <button mat-button type="button" class="clear" (click)="clearFilters()">Clear filters</button>
+  }
+</section>
+
+@if (!salarySortAllowed()) {
+  <p class="hint">
+    <mat-icon inline>info</mat-icon>
+    Salaries are in each country's local currency. Pick a country to sort or compare by salary.
+  </p>
+}
+
+<div class="table-card">
+  @if (employees.isLoading()) {
+    <mat-progress-bar mode="indeterminate" aria-label="Loading employees" />
+  }
+
+  @if (errorMessage(); as message) {
+    <div class="state error" role="alert">
+      <p>{{ message }}</p>
+      <button mat-stroked-button type="button" (click)="employees.reload()">Try again</button>
+    </div>
+  } @else if (page(); as current) {
+    <table
+      mat-table
+      [dataSource]="current.content"
+      matSort
+      [matSortActive]="activeSort().field"
+      [matSortDirection]="activeSort().direction"
+      (matSortChange)="onSortChange($event)"
+    >
+      <ng-container matColumnDef="employeeCode">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Code</th>
+        <td mat-cell *matCellDef="let e" class="mono">{{ e.employeeCode }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="fullName">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Name</th>
+        <td mat-cell *matCellDef="let e">{{ e.fullName }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="jobTitle">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Job title</th>
+        <td mat-cell *matCellDef="let e">{{ e.jobTitle }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="department">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Department</th>
+        <td mat-cell *matCellDef="let e">{{ e.department }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="country">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Country</th>
+        <td mat-cell *matCellDef="let e">{{ e.countryName }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="annualSalary">
+        <th
+          mat-header-cell
+          *matHeaderCellDef
+          mat-sort-header
+          arrowPosition="before"
+          class="numeric"
+          [disabled]="!salarySortAllowed()"
+          [matTooltip]="salarySortAllowed() ? '' : 'Pick a country to sort by salary'"
+        >
+          Annual salary
+        </th>
+        <td mat-cell *matCellDef="let e" class="numeric">
+          {{ e.annualSalary | currency: e.currency : 'symbol' : '1.0-0' }}
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="employmentType">
+        <th mat-header-cell *matHeaderCellDef>Type</th>
+        <td mat-cell *matCellDef="let e">{{ employmentTypeLabel(e.employmentType) }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="hireDate">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Hired</th>
+        <td mat-cell *matCellDef="let e">{{ e.hireDate | date: 'mediumDate' }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef><span class="visually-hidden">Actions</span></th>
+        <td mat-cell *matCellDef="let e">
+          <a mat-icon-button [routerLink]="['/employees', e.id, 'edit']" [attr.aria-label]="'Edit ' + e.fullName">
+            <mat-icon>edit</mat-icon>
+          </a>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="columns; sticky: true"></tr>
+      <tr mat-row *matRowDef="let row; columns: columns"></tr>
+      <tr class="mat-row" *matNoDataRow>
+        <td class="state" [attr.colspan]="columns.length">No employees match these filters.</td>
+      </tr>
+    </table>
+
+    <mat-paginator
+      [length]="current.page.totalElements"
+      [pageIndex]="pageIndex()"
+      [pageSize]="pageSize()"
+      [pageSizeOptions]="pageSizes"
+      (page)="onPage($event)"
+      showFirstLastButtons
+      aria-label="Select page of employees"
+    />
+  }
+</div>
