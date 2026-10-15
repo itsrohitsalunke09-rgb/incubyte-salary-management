@@ -1,0 +1,26 @@
+.app-toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  gap: 24px;
+  background: var(--mat-sys-primary);
+  color: var(--mat-sys-on-primary);
+}
+
+.app-title {
+  font: var(--mat-sys-title-large);
+}
+
+.app-nav a {
+  color: var(--mat-sys-on-primary);
+}
+
+.app-nav .active-link {
+  background: color-mix(in srgb, var(--mat-sys-on-primary) 16%, transparent);
+}
+
+.app-content {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 24px 16px;
+}
