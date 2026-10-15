@@ -125,7 +125,14 @@ and no cross-feature shared state, so a store would be ceremony.
 - Deterministic (`Random(42)`), so every run and every reviewer gets the same 10,000 employees.
 - 6 countries × 8 departments × ~20 titles. The salary is `base band (country, title) × level multiplier ± noise`,
   so the insights look realistic (e.g. US engineer > India engineer in absolute terms).
-- Runs on startup **only when the table is empty**, using JDBC batch inserts (target: under 3 s).
+- Runs on startup **only when the table is empty**, so restarts never duplicate or overwrite data HR has entered
+  (disable it with `salary.seed.enabled=false`).
+- *(Revised during implementation)* It uses JPA `saveAll` in batches of 500 inside **one** transaction, flushing and
+  clearing the persistence context between batches. **Measured: 10,000 employees in ~4.9 s** on my laptop. That's a
+  one-off cost on an empty database. Plain JDBC batch inserts would be roughly 10× faster, but they would duplicate
+  the entity mapping (timestamps and date formats in SQLite), so I chose the simpler, consistent path.
+- Measured API latency on the seeded database: list page 60–220 ms, country insights ~110 ms, job-title
+  breakdown ~65 ms. That's within the < 500 ms goal.
 
 ## 6. Testing strategy
 | Level | What | Tooling |
