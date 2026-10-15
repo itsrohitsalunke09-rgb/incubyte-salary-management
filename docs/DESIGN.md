@@ -97,10 +97,18 @@ Base path `/api`. JSON in and out. Errors use RFC 7807 `ProblemDetail`.
 | `GET /insights/countries/{code}/job-titles` | "What do we pay role X in country Y?" — the same stats per job title |
 | `GET /insights/countries/{code}/departments` | Headcount and total payroll per department in a country |
 
-**How the stats are computed:** count, min, max, avg and sum are done in SQL with `GROUP BY`. **Median** is
-computed in `SalaryStatistics` from the sorted salaries of the group. SQLite has no `percentile_cont`, and
-at 10k rows (the largest country is a few thousand) this takes milliseconds. *At ~1M rows I'd move to
-Postgres and `percentile_cont`, or precompute aggregates.*
+**How the stats are computed** *(revised during implementation)*: each endpoint runs **one** projection query
+that returns only `(group, salary)` pairs, never whole entities. **All** figures (count, min, max, average,
+median, total) are then computed by `SalaryStatistics`. I originally planned SQL `GROUP BY` for the simple
+aggregates plus Java for the median, but that splits the maths across two places with two rounding behaviours.
+A single code path is simpler and fully unit-tested, and at 10k rows it costs milliseconds. SQLite has no
+`percentile_cont` anyway. *At ~1M rows I'd move to Postgres and push aggregation into SQL
+(`percentile_cont` for the median), or precompute aggregates on write.*
+
+Response shapes: `/insights/countries` → `[{country, countryName, currency, headcount, min, max, average, median,
+totalPayroll}]` (only countries with employees); the per-country breakdowns →
+`{country, countryName, currency, groups: [{name, headcount, min, max, average, median, totalPayroll}]}`, sorted by
+name. A country with no employees gets an empty `groups` list, not a 404.
 
 ## 4. Frontend
 
